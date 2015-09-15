@@ -42,31 +42,55 @@ const int find_line_size(const char *buffer, const size_t length) {
   return size;
 }
 
-const char* bisect(const char* data, const size_t data_size, const char *pattern) {
+const char* bisect_start(const char* data, const size_t data_size, const char *pattern) {
   if (data_size <= 1)
     return NULL;
 
   size_t mid = data_size / 2;
-  printf("bisect(%p, %ld, %s) mid: %ld\n", data, data_size, pattern, mid);
   // rewind to line start
   const char *line_start = find_line_start(data, mid);
   // compute corrected mid offset
   mid = line_start - data;
   // find line end
   const int line_size = find_line_size(line_start, data_size - mid);
-  printf("line: %p (length: %d) %.*s\n", line_start, line_size, line_size, line_start);
   // compare line with pattern
   const int compare = match(line_start, line_size, pattern);
-  printf("compare: %d\n", compare);
+  printf("bisect_start(%p, %ld, %s) mid: %ld, line: %.50s (%d)\n", data, data_size, pattern, mid, line_start, compare);
 
   if (compare > 0) { // line is smaller than pattern, search in next lines
-    return bisect(line_start + line_size, data_size - mid - line_size, pattern);
+    return bisect_start(line_start + line_size + 1, data_size - mid - line_size -1, pattern);
   } else { // line is higher or equal to pattern, search in previous lines
-    const char* start = bisect(data, mid, pattern);
+    const char* start = bisect_start(data, mid, pattern);
     // if there is no match in previous lines but current line is matching, it's the start !
     if (compare == 0 && start == NULL)
       start = line_start;
     return start;
+  }
+}
+
+const char* bisect_end(const char* data, const size_t data_size, const char *pattern) {
+  if (data_size <= 1)
+    return NULL;
+
+  size_t mid = data_size / 2;
+  // rewind to line start
+  const char *line_start = find_line_start(data, mid);
+  // compute corrected mid offset
+  mid = line_start - data;
+  // find line end
+  const int line_size = find_line_size(line_start, data_size - mid);
+  // compare line with pattern
+  const int compare = match(line_start, line_size, pattern);
+  printf("bisect_end(%p, %ld, %s) mid: %ld, line: %.50s (%d)\n", data, data_size, pattern, mid, line_start, compare);
+
+  if (compare < 0) { // line is higher than pattern, search in previous lines
+    return bisect_end(data, mid, pattern);
+  } else { // line is lower or equal to pattern, search in next lines
+    const char* end = bisect_end(line_start + line_size + 1, data_size - mid - line_size - 1, pattern);
+    // if there is no match in next lines but current line is matching, it's the end !
+    if (compare == 0 && end == NULL)
+      end = line_start + line_size + 1;
+    return end;
   }
 }
 
@@ -89,9 +113,11 @@ int main(int argc, char **argv) {
     fprintf(stderr, "Can't mmap file into memory\n");
     return 1;
   }
-  const char *start = bisect(data, file_size, pattern);
+  const char *start = bisect_start(data, file_size, pattern);
   printf("Starts at %ld: %.50s\n", start - data, start);
-  // write(1, data, file_size);
+  const char *end = bisect_end(start, file_size - (start - data), pattern);
+  printf("Ends at %ld: %.50s\n", end - data, end);
+  write(1, start, end - start);
   munmap(data, file_size);
   close(fd);
   return 0;

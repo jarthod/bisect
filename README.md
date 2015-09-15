@@ -19,3 +19,9 @@ But as you may know, if the lines are properly sorted (which is probably the cas
 ```
 bisect log "2015-04-01T21:0"
 ```
+
+## How to build
+
+    git clone http://github.com/jarthod/bisect
+    cd bisect
+    make
