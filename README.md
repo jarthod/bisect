@@ -25,3 +25,9 @@ bisect log "2015-04-01T21:0"
     git clone http://github.com/jarthod/bisect
     cd bisect
     make
+
+## TODO
+
+- [ ] Benchmark seek vs mmap
+- [ ] Refactor code
+- [ ] Write specs
