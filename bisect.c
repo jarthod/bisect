@@ -12,6 +12,7 @@ size_t get_file_size(const char *filename) {
   return st.st_size;
 }
 
+// match the pattern against a line and tell if it's lower (-), higher (+) or equal (0)
 const int match(const char* line, const size_t length, const char* pattern) {
   // no pattern or all matched
   if (pattern == NULL || pattern[0] == 0)
@@ -24,6 +25,7 @@ const int match(const char* line, const size_t length, const char* pattern) {
   return pattern[0] - line[0];
 }
 
+// Find the last newline char in the buffer and returns a pointer to the next line
 const char* find_line_start(const char *buffer, const size_t length) {
   const char *ptr = buffer + (length - 1);
   while (ptr >= buffer) {
@@ -34,6 +36,7 @@ const char* find_line_start(const char *buffer, const size_t length) {
   return buffer;
 }
 
+// Find the line length (max to buffer length if there is no newline)
 const int find_line_size(const char *buffer, const size_t length) {
   int size = 0;
   while (size < length && buffer[size] != '\n') {
