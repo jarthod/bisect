@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
     fprintf(stderr, "Can't open file\n");
     return 1;
   }
-  char *data = mmap(NULL, file_size, PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd, 0);
+  char *data = mmap(NULL, file_size, PROT_READ, MAP_PRIVATE | MAP_NORESERVE, fd, 0);
   if (data == NULL) {
     fprintf(stderr, "Can't mmap file into memory\n");
     return 1;

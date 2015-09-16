@@ -28,6 +28,5 @@ bisect log "2015-04-01T21:0"
 
 ## TODO
 
-- [ ] Benchmark seek vs mmap
 - [ ] Refactor code
 - [ ] Write specs
