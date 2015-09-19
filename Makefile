@@ -7,3 +7,6 @@ clean:
 	rm -f bisect
 
 re: clean all
+
+test: all
+	test/run.sh

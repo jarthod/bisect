@@ -58,7 +58,7 @@ const char* bisect_start(const char* data, const size_t data_size, const char *p
   const int line_size = find_line_size(line_start, data_size - mid);
   // compare line with pattern
   const int compare = match(line_start, line_size, pattern);
-  printf("bisect_start(%p, %ld, %s) mid: %ld, line: %.50s (%d)\n", data, data_size, pattern, mid, line_start, compare);
+  // printf("bisect_start(%p, %ld, %s) mid: %ld, line: %.50s (%d)\n", data, data_size, pattern, mid, line_start, compare);
 
   if (compare > 0) { // line is smaller than pattern, search in next lines
     return bisect_start(line_start + line_size + 1, data_size - mid - line_size -1, pattern);
@@ -84,7 +84,7 @@ const char* bisect_end(const char* data, const size_t data_size, const char *pat
   const int line_size = find_line_size(line_start, data_size - mid);
   // compare line with pattern
   const int compare = match(line_start, line_size, pattern);
-  printf("bisect_end(%p, %ld, %s) mid: %ld, line: %.50s (%d)\n", data, data_size, pattern, mid, line_start, compare);
+  // printf("bisect_end(%p, %ld, %s) mid: %ld, line: %.50s (%d)\n", data, data_size, pattern, mid, line_start, compare);
 
   if (compare < 0) { // line is higher than pattern, search in previous lines
     return bisect_end(data, mid, pattern);
@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
   const char *filename = argv[1];
   const char *pattern = argv[2];
   size_t file_size = get_file_size(filename);
-  printf("bisecting %s (%.3g MB)\n", filename, file_size / 1024. / 1024.);
+  // printf("bisecting %s (%.3g MB)\n", filename, file_size / 1024. / 1024.);
   int fd = open(filename, O_RDONLY, 0);
   if (fd == -1) {
     fprintf(stderr, "Can't open file\n");
@@ -117,10 +117,18 @@ int main(int argc, char **argv) {
     return 1;
   }
   const char *start = bisect_start(data, file_size, pattern);
-  printf("Starts at %ld: %.50s\n", start - data, start);
-  const char *end = bisect_end(start, file_size - (start - data), pattern);
-  printf("Ends at %ld: %.50s\n", end - data, end);
-  write(1, start, end - start);
+  if (start) {
+    // printf("Starts at %ld: %.50s\n", start - data, start);
+    const char *end = bisect_end(start, file_size - (start - data), pattern);
+    if (end) {
+      // printf("Ends at %ld: %.50s\n", end - data, end);
+      write(1, start, end - start);
+    } else {
+      write(1, "\n", 1);
+    }
+  } else {
+    write(1, "\n", 1);
+  }
   munmap(data, file_size);
   close(fd);
   return 0;
