@@ -26,6 +26,10 @@ bisect log "2015-04-01T21:0"
     cd bisect
     make
 
+### Run tests
+
+    make test
+
 ## TODO
 
 - [ ] Refactor code
